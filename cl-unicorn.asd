@@ -6,4 +6,4 @@
 (Limited, for now, to what's needed by ROPER)"
   :author "Oblivia Simplex <oblivia@paranoici.org>"
   :depends-on (#:cffi)
-  :components ((:file "package") (:file "unicorn")))
+  :components ((:file "package") (:file "constants") (:file "unicorn")))
