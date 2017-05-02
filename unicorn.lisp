@@ -606,7 +606,9 @@ error code as the second."
   )
 
 (defun fn->callback (fn)
-  "Transforms a function into a callback pointer, for unicorn."
+  "Transforms a function into a callback pointer, for unicorn.
+Note that the function symbol should be quoted, and not sharp-quoted, or
+else this will fail silently and mysteriously."
   (let ((cb-sym (gensym "CB")))
     (get-callback (defcallback cb-sym :void
                    ((uc unicorn-engine)
@@ -615,15 +617,22 @@ error code as the second."
                     (user-data :pointer))
                  (funcall fn uc address size user-data)))))
 
-(defun uc-hook-add (engine fn begin end
-                    &key (hook-type :code)
+(defun uc-hook-add (engine begin end
+                    &key
+                      (func)
+                      (callback-ptr)
+                      (hook-type :code)
                       (user-data (foreign-alloc :pointer)))
+  "You can supply *either* a function (to be converted to a callback) or
+a precompiled callback pointer (to save time and space)."
   (let* ((handle (foreign-alloc :pointer))
-         (callback-ptr (fn->callback fn))
+         (cb-ptr (if (null callback-ptr)
+                     (fn->callback func)
+                     callback-ptr))
          (errcode (%uc-hook-add engine handle
                                 (foreign-enum-value 'uc-hook-type
                                                     hook-type)
-                                callback-ptr
+                                cb-ptr
                                 user-data
                                 begin
                                 end)))
