@@ -18,6 +18,9 @@ To load "cl-unicorn":
 (:CL-UNICORN)
 CL-USER> (in-package :unicorn)
 #<PACKAGE "UNICORN">
+UNICORN> (uc-version)
+1
+0
 UNICORN> (defparameter *uc* (uc-open :arm :arm)) ;; ARM arch, ARM mode 
 *UC*
 UNICORN> (uc-reg-read *uc* :sp :arch :arm)
@@ -85,8 +88,5 @@ UNICORN> (mem-ref user-data :uint64)
 4
 UNICORN> (uc-close *uc*)
 :OK
-UNICORN> (uc-version)
-1
-0
 UNICORN> 
 ```
