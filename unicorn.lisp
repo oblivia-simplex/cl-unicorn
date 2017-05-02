@@ -653,3 +653,4 @@ error code as the second."
   (uc-mem-map *uc* 0 #x1000 '(:read :write :exec))
   (uc-mem-write *uc* 0 ~test-code~)
   (uc-reg-write-batch *uc* (range 0 16) (loop repeat 16 collect 5)))
+;; testing 
