@@ -4,7 +4,7 @@
 
 Common Lisp bindings for the Unicorn emulation engine (www.unicorn-engine.org)
 
-So far, the ARM and x86 architectures are fairly well-supported. Not quite a finished product, though. Feel free to take it for a spin, but I wouldn't advise using it, as-is, in production, just yet.
+So far, the ARM, MIPS, and x86 architectures are fairly well-supported. Not quite a finished product, though. Feel free to take it for a spin, but I wouldn't advise using it, as-is, in production, just yet.
 
 
 ## Usage example (take with a grain of salt while under construction):
