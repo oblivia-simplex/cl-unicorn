@@ -4,7 +4,8 @@
 
 Common Lisp bindings for the Unicorn emulation engine (www.unicorn-engine.org)
 
-So far, the ARM, MIPS, and x86 architectures are fairly well-supported. Not quite a finished product, though. Feel free to take it for a spin, but I wouldn't advise using it, as-is, in production, just yet.
+So far, the ARM, MIPS, and x86 architectures are fairly well-supported. Not quite a finished product, but nearly so. Adding support for the missing architectures now appears to be just a matter of adding the necessary constants (the key-val pairs in the +reg-ids+ list, and so on), which is itself just a few quick sed jobs away. A bit of optimization could probably still stand to be done, and maybe a few convenience macros -- maybe a with-cpu-context macro for easily evaluating snippets of machine code.
+
 
 
 ## Usage example (take with a grain of salt while under construction):
