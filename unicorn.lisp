@@ -230,7 +230,7 @@ a precompiled callback pointer (to save time and space)."
                                 end)))
     (values handle errcode)))
 
-
+;;; TODO: uc-hook-remove! 
 
 ;;;;;;;;;;;;;;;;;
 ;; For testing ;;
