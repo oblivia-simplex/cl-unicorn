@@ -178,11 +178,27 @@ error code as the second."
   (count :uint64))
 
 (defun uc-emu-start (engine begin &key
-                                    (until 0)
-                                    (timeout 0)
-                                    (count 0))
-  (%uc-emu-start engine begin until timeout count))
+                                    (until)
+                                    (timeout)
+                                    (count))
+  (handler-case 
+      (%uc-emu-start engine
+		     begin
+		     (if until until #xFFFFFFFF)
+		     (if timeout timeout 0)
+		     (if count count -1))
+    (error (e)
+      (format t "Exception unhandled by unicorn: ~A~%" e)
+      :UNHANDLED)))
 
+(defcfun ("uc_hook_del" %uc-hook-del) uc-err
+  (uc-engine unicorn-engine)
+  (hook-handle :pointer))
+
+(defun uc-hook-del (uc-engine hook-handle)
+  (let ((res (%uc-hook-del uc-engine hook-handle)))
+    ;(foreign-free hook-handle)
+    res))
 
 (defcfun ("uc_hook_add" %uc-hook-add) uc-err
   (uc-engine unicorn-engine)
@@ -197,17 +213,15 @@ error code as the second."
   ;; instead of defcfun here.
   )
 
-(defun fn->callback (fn)
-  "Transforms a function into a callback pointer, for unicorn.
-Note that the function symbol should be quoted, and not sharp-quoted, or
-else this will fail silently and mysteriously."
-  (let ((cb-sym (gensym "CB")))
-    (get-callback (defcallback cb-sym :void
-                   ((uc unicorn-engine)
-                    (address :uint64)
-                    (size :uint32)
-                    (user-data :pointer))
-                 (funcall fn uc address size user-data)))))
+(export 'fn->callback)
+(defmacro fn->callback (fn)
+  (let ((cb-sym (gensym "cb")))
+    `(defcallback ,cb-sym :void
+	 ((uc unicorn-engine)
+	  (address :uint64)
+	  (size :uint32)
+	  (user-data :pointer))
+       (funcall ,fn uc address size user-data))))
 
 (defun uc-hook-add (engine begin end
                     &key
@@ -232,6 +246,7 @@ a precompiled callback pointer (to save time and space)."
 
 ;;; TODO: uc-hook-remove! 
 
+
 ;;;;;;;;;;;;;;;;;
 ;; For testing ;;
 ;;;;;;;;;;;;;;;;;
@@ -247,10 +262,12 @@ a precompiled callback pointer (to save time and space)."
     (format t "[~4X] ~S => ~S~%"
             address inst regs)))
 
-(defvar *uc*)
+(defvar *uc* nil)
 (defun set-up-tester ()
   (unless (null *uc*) (uc-close *uc*))
   (setf *uc* (uc-open :arm :arm))
   (uc-mem-map *uc* 0 #x1000 '(:read :write :exec))
   (uc-mem-write *uc* 0 ~test-code~)
   (uc-reg-write-batch *uc* (range 0 16) (loop repeat 16 collect 5)))
+
+

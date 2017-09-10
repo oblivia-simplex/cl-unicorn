@@ -64,7 +64,8 @@
   :FETCH-UNALIGNED  ;; Unaligned fetch
   :HOOK-EXIST  ;; hook for this event already existed
   :RESOURCE   ;; Insufficient resource: uc_emu_start()
-  :EXCEPTION) ;; Unhandled CPU exception
+  :EXCEPTION
+  :UNHANDLED) ;; Unhandled CPU exception
 
 
 
