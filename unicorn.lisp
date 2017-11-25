@@ -90,6 +90,7 @@
   (value :pointer))
 
 
+(export 'uc-reg-write)
 (defun uc-reg-write (engine register value &key
                                              (type :uint64)
                                              (arch :arm))
@@ -102,13 +103,17 @@
   (regid :uint)
   (value :pointer))
 
+(export 'uc-reg-read)
 (defun uc-reg-read (engine register &key (type :uint64) (arch :arm))
   "Returns the register contents as the first value, and the
 error code as the second."
   (with-foreign-pointer (valptr 8)
-    (let ((err (%uc-reg-read engine (%reg->regid register :arch arch)
-                             valptr)))
-      (values (mem-ref valptr type) err))))
+    (let ((regid (%reg->regid register :arch arch)))
+      (assert regid () 
+      (let ((err (%uc-reg-read engine
+			      regid ;;(%reg->regid register :arch arch)
+			      valptr)))
+      (values (mem-ref valptr type) err)))))
 
 (defun uc-reg-write-batch (engine registers values
                            &key (type :uint64) (arch :arm))
@@ -127,17 +132,16 @@ error code as the second."
   (size size))
 
 
+(export 'bytes->pointer)
 (defun bytes->pointer (bytes)
   (foreign-alloc :uint8
                  :initial-contents bytes))
 
+(export 'pointer->bytes)
 (defun pointer->bytes (pointer size)
-  (let ((buffer (make-array size :element-type '(unsigned-byte 8))))
-    (loop for i below size
-          do (setf (aref buffer i)
-                   (mem-aref pointer :uint8 i)))
-    buffer))
+  (loop for i below size collect (mem-aref pointer :uint8 i)))
 
+(export 'uc-mem-write)
 (defun uc-mem-write (engine address bytes)
   (unwind-protect
        (let* ((length (length bytes))
@@ -155,10 +159,16 @@ error code as the second."
   (bytes :pointer)
   (size size))
 
+(export 'uc-mem-read)
 (defun uc-mem-read (engine address size)
   (with-foreign-pointer (buffer size)
-    (%uc-mem-read engine address buffer size)
-    (pointer->bytes buffer size)))
+    (let ((errcode (%uc-mem-read engine address buffer size)))
+      (values (if (eq errcode :ok)
+		  (pointer->bytes buffer size)
+		  ())
+	      errcode))))
+
+     
 
 (defcfun ("uc_mem_map" %uc-mem-map) uc-err
   (uc-engine unicorn-engine)

@@ -41,7 +41,7 @@
   (:SPARC64 #.(ash 1 3))  ;; 64-bit mode
   (:V9 #.(ash 1 4)))  ;; SparcV9 mode (currently unsupported)
 
-
+(export 'uc-err)
 (defcenum uc-err
   :OK  ;; No error: everything was fine
   :NOMEM  ;; Out-Of-Memory error: uc_open(), uc_emulate()
@@ -67,7 +67,9 @@
   :EXCEPTION
   :UNHANDLED) ;; Unhandled CPU exception
 
-
+(export 'errorcode->int)
+(defun errorcode->int (errorcode)
+  (foreign-enum-value 'uc-err errorcode))
 
 (defcenum uc-mem-type
   (:READ 16)  ;; Memory is read from
